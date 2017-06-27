@@ -50,8 +50,10 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.pre).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //如果是adapter1
                 if (mIsAdapter1) {
                     setStyle2();
+                    //把最后一张带到前面
                     mCardView.bringCardToFront(mAdapter1.getCount() - 1);
                 } else {
                     setStyle1();
@@ -98,9 +100,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setStyle2() {
+        //设置可点击状态
         mCardView.setClickable(true);
+        //设置动画类型
         mCardView.setAnimType(InfiniteCardView.ANIM_TYPE_SWITCH);
+        //设置动画插值器
+        //TODO 关于OvershootInterpolator
         mCardView.setAnimInterpolator(new OvershootInterpolator(-18));
+        //设置 根据插值器的更新值来刷新动画的函数
         mCardView.setTransformerToFront(new DefaultTransformerToFront());
         mCardView.setTransformerToBack(new AnimationTransformer() {
             @Override

@@ -86,6 +86,7 @@ class CardAnimationHelper implements Animator.AnimatorListener,
 
     /**
      * setup animator
+     * 设置动画
      */
     private void initAnimator() {
         mValueAnimator = ValueAnimator.ofFloat(0, 1).setDuration(mAnimDuration);

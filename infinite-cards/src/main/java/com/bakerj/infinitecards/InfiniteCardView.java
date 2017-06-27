@@ -20,10 +20,10 @@ import com.bakerj.infinitecards.lib.R;
  */
 public class InfiniteCardView extends ViewGroup {
     /*
-     * Three types of animation
-     * ANIM_TYPE_FRONT:custom animation for chosen card, common animation for other cards
-     * ANIM_TYPE_SWITCH:switch the position by custom animation of the first card and the chosen card
-     * ANIM_TYPE_FRONT_TO_LAST:moving the first card to last position by custom animation, common animation for others
+     * Three types of animation,三种动画类型
+     * ANIM_TYPE_FRONT:custom animation for chosen card, common animation for other cards 选中的带到前面
+     * ANIM_TYPE_SWITCH:switch the position by custom animation of the first card and the chosen card 交换选中的card和first card
+     * ANIM_TYPE_FRONT_TO_LAST:moving the first card to last position by custom animation, common animation for others,第一张到最后
      */
     public static final int ANIM_TYPE_FRONT = 0, ANIM_TYPE_SWITCH = 1, ANIM_TYPE_FRONT_TO_LAST = 2;
     //cardHeight / cardWidth = CARD_SIZE_RATIO
@@ -152,6 +152,7 @@ public class InfiniteCardView extends ViewGroup {
 
     /**
      * bring the specific position card to front
+     * 把选中的card 带到前面
      *
      * @param position position
      */
@@ -232,12 +233,13 @@ public class InfiniteCardView extends ViewGroup {
         return mAnimationHelper.isAnimating();
     }
 
-    public void setCardAnimationListener(CardAnimationListener cardAnimationListener){
+    public void setCardAnimationListener(CardAnimationListener cardAnimationListener) {
         mAnimationHelper.setCardAnimationListener(cardAnimationListener);
     }
 
-    public static interface CardAnimationListener{
+    public static interface CardAnimationListener {
         void onAnimationStart();
+
         void onAnimationEnd();
     }
 }
