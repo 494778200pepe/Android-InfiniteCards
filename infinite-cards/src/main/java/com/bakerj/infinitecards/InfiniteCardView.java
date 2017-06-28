@@ -51,7 +51,19 @@ public class InfiniteCardView extends ViewGroup {
     }
 
     private void init(Context context, AttributeSet attrs) {
+
+//        animType : 动效展示类型
+    //        front : 将点击的卡片切换到第一个
+    //        switchPosition : 将点击的卡片和第一张卡片互换位置
+    //        frontToLast : 将第一张卡片移到最后，后面的卡片往前移动一个
+//        cardRatio : 卡片宽高比
+//        animDuration : 卡片动效时间
+//        animAddRemoveDelay : 卡片组切换时，添加与移出时，相邻卡片展示动效的间隔时间
+//        animAddRemoveDuration : 卡片组切换时，添加与移出时，卡片动效时间
+
+        //动画类型
         int animType = ANIM_TYPE_FRONT;
+        //设置动画的执行和延迟时间
         int animDuration = CardAnimationHelper.ANIM_DURATION;
         int animAddRemoveDuration = CardAnimationHelper.ANIM_ADD_REMOVE_DURATION;
         int animAddRemoveDelay = CardAnimationHelper.ANIM_ADD_REMOVE_DELAY;
@@ -66,6 +78,7 @@ public class InfiniteCardView extends ViewGroup {
                     CardAnimationHelper.ANIM_ADD_REMOVE_DELAY);
             ta.recycle();
         }
+        //初始化动画执行器
         mAnimationHelper = new CardAnimationHelper(animType, animDuration, this);
         mAnimationHelper.setAnimAddRemoveDuration(animAddRemoveDuration);
         mAnimationHelper.setAnimAddRemoveDelay(animAddRemoveDelay);
@@ -167,12 +180,14 @@ public class InfiniteCardView extends ViewGroup {
      */
     public void setAdapter(BaseAdapter adapter) {
         this.mAdapter = adapter;
+        //注册adapter的观察者，内容发生变化时，执行onChanged方法
         mAdapter.registerDataSetObserver(new DataSetObserver() {
             @Override
             public void onChanged() {
                 mAnimationHelper.notifyDataSetChanged(mAdapter);
             }
         });
+        //第一次进入的时候，初始化helper，true表示需要重置
         mAnimationHelper.initAdapterView(adapter, true);
     }
 

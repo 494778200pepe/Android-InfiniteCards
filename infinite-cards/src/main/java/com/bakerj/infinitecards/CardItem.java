@@ -6,6 +6,7 @@ import android.view.View;
  * @author BakerJ
  */
 public class CardItem {
+    //三个属性，一个view，一个adapter中的id，一个是z轴的index
     public View view;
     public float zIndex;
     int adapterIndex;
