@@ -1,8 +1,10 @@
 package com.bakerj.infinitecards.transformer;
 
+import android.util.Log;
 import android.view.View;
 
 import com.bakerj.infinitecards.AnimationTransformer;
+import com.bakerj.infinitecards.Consts;
 import com.nineoldandroids.view.ViewHelper;
 
 /**
@@ -12,6 +14,9 @@ import com.nineoldandroids.view.ViewHelper;
 public class DefaultTransformerAdd implements AnimationTransformer {
     @Override
     public void transformAnimation(View view, float fraction, int cardWidth, int cardHeight, int fromPosition, int toPosition) {
+        Log.d(Consts.TAG, " ===> DefaultTransformerAdd---transformAnimation");
+        Log.d(Consts.TAG, " ======> fraction =" + fraction);
+        Log.d(Consts.TAG, " ======> fromPosition =" + fromPosition + "   toPosition = " + toPosition);
         fromPosition = toPosition + 1;
         int positionCount = fromPosition - toPosition;
         float scale = (0.8f - 0.1f * fromPosition) + (0.1f * fraction * positionCount);

@@ -3,6 +3,7 @@ package com.bakerj.infinitecards;
 import android.os.Bundle;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,10 @@ import com.bakerj.infinitecards.transformer.DefaultTransformerToFront;
 import com.bakerj.infinitecards.transformer.DefaultZIndexTransformerCommon;
 import com.nineoldandroids.view.ViewHelper;
 
+/**
+ * blog：可自定义动效的卡片切换视图 | BakerJ
+ * http://bakerjq.com/2017/05/28/20170528_InfiniteCard/
+ */
 public class MainActivity extends AppCompatActivity {
     private InfiniteCardView mCardView;
     private BaseAdapter mAdapter1, mAdapter2;
@@ -50,13 +55,15 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.pre).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d(Consts.TAG, " ===> pre-onClick");
+                Log.d(Consts.TAG, " ======> mIsAdapter1 =" + mIsAdapter1);
                 //如果是adapter1
                 if (mIsAdapter1) {
-                    setStyle2();
-                    //把最后一张带到前面
+                    setStyle2();//switch，互换
+                    //第一个和最后一个互换
                     mCardView.bringCardToFront(mAdapter1.getCount() - 1);
                 } else {
-                    setStyle1();
+                    setStyle1();//front,移动到第一个来
                     mCardView.bringCardToFront(mAdapter2.getCount() - 1);
                 }
             }
@@ -64,12 +71,16 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.next).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d(Consts.TAG, " ===> next-onClick");
+                Log.d(Consts.TAG, " ======> mIsAdapter1 =" + mIsAdapter1);
                 if (mIsAdapter1) {
-                    setStyle2();
+                    setStyle2();//switch，互换
+                    //第一个和第二个互换
+                    mCardView.bringCardToFront(1);
                 } else {
-                    setStyle3();
+                    setStyle3();//last,移动到最后一个去
+                    mCardView.bringCardToFront(1);
                 }
-                mCardView.bringCardToFront(1);
             }
         });
         findViewById(R.id.change).setOnClickListener(new View.OnClickListener() {
@@ -78,12 +89,17 @@ public class MainActivity extends AppCompatActivity {
                 if (mCardView.isAnimating()) {
                     return;
                 }
+                Log.d(Consts.TAG, " ===> change-onClick");
+                Log.d(Consts.TAG, " ======> mIsAdapter1 =" + mIsAdapter1);
+                //切换adapter
                 mIsAdapter1 = !mIsAdapter1;
                 if (mIsAdapter1) {
-                    setStyle2();
+                    //从adapter2 -> adapter1
+                    setStyle2();//switch，互换
                     mCardView.setAdapter(mAdapter1);
                 } else {
-                    setStyle1();
+                    //从adapter1 -> adapter2
+                    setStyle1();//front,移动到第一个来
                     mCardView.setAdapter(mAdapter2);
                 }
             }
@@ -91,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setStyle1() {
+        Log.d(Consts.TAG, " ===> setStyle1");
         mCardView.setClickable(true);
         mCardView.setAnimType(InfiniteCardView.ANIM_TYPE_FRONT);
         mCardView.setAnimInterpolator(new LinearInterpolator());
@@ -100,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setStyle2() {
+        Log.d(Consts.TAG, " ===> setStyle2");
         //设置可点击状态
         mCardView.setClickable(true);
         //设置动画类型
@@ -149,6 +167,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setStyle3() {
+        Log.d(Consts.TAG, " ===> setStyle3");
         mCardView.setClickable(false);
         mCardView.setAnimType(InfiniteCardView.ANIM_TYPE_FRONT_TO_LAST);
         mCardView.setAnimInterpolator(new OvershootInterpolator(-8));

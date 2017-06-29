@@ -1,5 +1,6 @@
 package com.bakerj.infinitecards;
 
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
@@ -33,21 +34,21 @@ class CardAnimationHelper implements Animator.AnimatorListener,
     //card container view
     private InfiniteCardView mCardView;
     //card item list
-    private LinkedList<CardItem> mCards;
+    private LinkedList<CardItem> mCards;//卡片列表
     //total card count
     private int mCardCount;
     //card width, card height
     //for judge Z index
     //    private ArrayList<CardItem> mCards4JudgeZIndex;
     //current card moving to back, current card moving to front
-    private CardItem mCardToBack, mCardToFront;
+    private CardItem mCardToBack, mCardToFront;//当前正在向后以及向前移动的卡片
     //current card position moving to front, current card position moving to front
-    private int mPositionToBack = 0, mPositionToFront = 0;
+    private int mPositionToBack = 0, mPositionToFront = 0;//正在向后以及向前移动卡片的位置
     private int mCardWidth, mCardHeight;
     //is doing animation now
     private boolean mIsAnim = false, mIsAddRemoveAnim = false;
     //animator
-    private ValueAnimator mValueAnimator;
+    private ValueAnimator mValueAnimator;//动画运行的ValueAnimator
     //custom animation transformer for card moving to front, card moving to back, and common card
     private AnimationTransformer mTransformerToFront, mTransformerToBack, mTransformerCommon;
     //custom animation transformer for card add and remove
@@ -59,7 +60,7 @@ class CardAnimationHelper implements Animator.AnimatorListener,
     //view adapter needs to be notify while animation
     private BaseAdapter mTempAdapter;
     //current animation fraction
-    private float mCurrentFraction = 1;
+    private float mCurrentFraction = 1;//当前的动画系数
     //animation listener
     private InfiniteCardView.CardAnimationListener mCardAnimationListener;
 
@@ -96,20 +97,29 @@ class CardAnimationHelper implements Animator.AnimatorListener,
 
     /**
      * do animation while update
+     * ValueAnimator动画更新
      *
      * @param animation animation
      */
     @Override
     public void onAnimationUpdate(ValueAnimator animation) {
+        Log.d(Consts.TAG, " ");
+        Log.d(Consts.TAG, " ");
+        Log.d(Consts.TAG, " ===========================>  onAnimationUpdate----start");
+        //获取当前动画系数
         mCurrentFraction = (float) animation.getAnimatedValue();
         float fractionInterpolated = mCurrentFraction;
         if (mAnimInterpolator != null) {
+            //通过插值器获取插值系数
             fractionInterpolated = mAnimInterpolator.getInterpolation(mCurrentFraction);
         }
-        doAnimationBackToFront(mCurrentFraction, fractionInterpolated);
-        doAnimationFrontToBack(mCurrentFraction, fractionInterpolated);
-        doAnimationCommon(mCurrentFraction, fractionInterpolated);
+//        Log.d(Consts.TAG, " ======> mCurrentFraction =" + mCurrentFraction + "   fractionInterpolated = " + fractionInterpolated);
+        doAnimationBackToFront(mCurrentFraction, fractionInterpolated);//有zIndex
+        doAnimationFrontToBack(mCurrentFraction, fractionInterpolated);//有zIndex
+        doAnimationCommon(mCurrentFraction, fractionInterpolated);//包含了common和zIndex
+        //这个zIndex和前面的zIndex的区别在哪儿
         bringToFrontByZIndex();
+        Log.d(Consts.TAG, " ===========================>  onAnimationUpdate----end");
     }
 
     /**
@@ -119,6 +129,8 @@ class CardAnimationHelper implements Animator.AnimatorListener,
      * @param fractionInterpolated interpolated animation progress
      */
     private void doAnimationBackToFront(float fraction, float fractionInterpolated) {
+//        Log.d(Consts.TAG, " ===> doAnimationBackToFront");
+//        Log.d(Consts.TAG, " ======> fraction =" + fraction + "   fractionInterpolated = " + fractionInterpolated);
         mTransformerToFront.transformAnimation(mCardToFront.view,
                 fraction, mCardWidth, mCardHeight, mPositionToFront, 0);
         if (mAnimInterpolator != null) {
@@ -136,6 +148,8 @@ class CardAnimationHelper implements Animator.AnimatorListener,
      * @param fractionInterpolated interpolated animation progress
      */
     private void doAnimationFrontToBack(float fraction, float fractionInterpolated) {
+//        Log.d(Consts.TAG, " ===> doAnimationFrontToBack");
+//        Log.d(Consts.TAG, " ======> fraction =" + fraction + "   fractionInterpolated = " + fractionInterpolated);
         if (mAnimType == InfiniteCardView.ANIM_TYPE_FRONT) {
             return;
         }
@@ -151,14 +165,20 @@ class CardAnimationHelper implements Animator.AnimatorListener,
 
     /**
      * do animation for common card items
+     * 执行通用动画，style2执行
      *
      * @param fraction             animation progress from 0.0f to 1.0f
      * @param fractionInterpolated interpolated animation progress
      */
     private void doAnimationCommon(float fraction, float fractionInterpolated) {
+//        Log.d(Consts.TAG, " ===> doAnimationCommon");
+//        Log.d(Consts.TAG, " ======> fraction =" + fraction + "   fractionInterpolated = " + fractionInterpolated);
+        //如果当前动画模式为选中的卡片移到最前
         if (mAnimType == InfiniteCardView.ANIM_TYPE_FRONT) {
+            //则遍历在选中卡片之前的卡片
             for (int i = 0; i < mPositionToFront; i++) {
                 CardItem card = mCards.get(i);
+                //对卡片执行动画，从当前位置移动到后一个位置
                 doAnimationCommonView(card.view, fraction, fractionInterpolated, i, i + 1);
                 doAnimationZIndex(mZIndexTransformerCommon, card, fraction, fractionInterpolated,
                         i, i + 1);
@@ -175,6 +195,7 @@ class CardAnimationHelper implements Animator.AnimatorListener,
 
     /**
      * do animation for common card views
+     * 对视图执行通用动画
      *
      * @param view                 card view
      * @param fraction             animation progress from 0.0f to 1.0f
@@ -184,9 +205,14 @@ class CardAnimationHelper implements Animator.AnimatorListener,
      */
     private void doAnimationCommonView(View view, float fraction, float fractionInterpolated, int
             fromPosition, int toPosition) {
+//        Log.d(Consts.TAG, " ===> doAnimationCommonView");
+//        Log.d(Consts.TAG, " ======> fraction =" + fraction + "   fractionInterpolated = " + fractionInterpolated);
+//        Log.d(Consts.TAG, " ======> fromPosition =" + fromPosition + "   toPosition = " + toPosition);
+        //通用转换器转换动画
         mTransformerCommon.transformAnimation(view, fraction, mCardWidth,
                 mCardHeight, fromPosition, toPosition);
         if (mAnimInterpolator != null) {
+            //通用转换器转换插值动画
             mTransformerCommon.transformInterpolatedAnimation(view, fractionInterpolated, mCardWidth,
                     mCardHeight, fromPosition, toPosition);
         }
@@ -204,6 +230,9 @@ class CardAnimationHelper implements Animator.AnimatorListener,
      */
     private void doAnimationZIndex(ZIndexTransformer transformer, CardItem card, float fraction,
                                    float fractionInterpolated, int fromPosition, int toPosition) {
+//        Log.d(Consts.TAG, " ===> doAnimationZIndex");
+//        Log.d(Consts.TAG, " ======> fraction =" + fraction + "   fractionInterpolated = " + fractionInterpolated);
+//        Log.d(Consts.TAG, " ======> fromPosition =" + fromPosition + "   toPosition = " + toPosition);
         transformer.transformAnimation(card, fraction, mCardWidth,
                 mCardHeight, fromPosition, toPosition);
         if (mAnimInterpolator != null) {
@@ -217,6 +246,7 @@ class CardAnimationHelper implements Animator.AnimatorListener,
      * bigger Z index
      */
     private void bringToFrontByZIndex() {
+        Log.d(Consts.TAG, " ==============>  bringToFrontByZIndex   mAnimType = " + mAnimType);
         if (mAnimType == InfiniteCardView.ANIM_TYPE_FRONT) {
             //if the animation type is ANIM_TYPE_FRONT, which means other cards are under common
             // animation, so start cycling the card items from the position before the moving
@@ -241,7 +271,7 @@ class CardAnimationHelper implements Animator.AnimatorListener,
             //##########################for better performance#########################
             boolean cardToFrontBrought = false;//is card moving to front called bringToFront
             //cycling the card items
-            for (int i = mCardCount - 1; i > 0; i--) {
+            for (int i = mCardCount - 1; i > 0; i--) {//从后往前 4 -> 1
                 CardItem card = mCards.get(i);
                 //get the card before current card
                 CardItem cardPre = i > 1 ? mCards.get(i - 1) : null;
@@ -259,16 +289,19 @@ class CardAnimationHelper implements Animator.AnimatorListener,
                 boolean bringCardToFrontViewToFront = mCardToFront.zIndex < card.zIndex && cardToFrontBehindCardPre;
                 //if current card is not the card moving to front
                 if (i != mPositionToFront) {
+                    Log.d(Consts.TAG, " ==============>  i != mPositionToFront");
                     //call bringToFront for it
                     card.view.bringToFront();
                     mCardView.updateViewLayout(card.view, card.view.getLayoutParams());
                     //if we should bring the card moving to back to front, just do it
                     if (bringCardToBackViewToFront) {
+                        Log.d(Consts.TAG, " ==============> 1");
                         mCardToBack.view.bringToFront();
                         mCardView.updateViewLayout(mCardToBack.view, mCardToBack.view.getLayoutParams());
                     }
                     //if we should bring the card moving to front to front, just do it
                     if (bringCardToFrontViewToFront) {
+                        Log.d(Consts.TAG, " ==============> 2");
                         mCardToFront.view.bringToFront();
                         mCardView.updateViewLayout(mCardToFront.view, mCardToFront.view.getLayoutParams());
                         cardToFrontBrought = true;
@@ -278,18 +311,22 @@ class CardAnimationHelper implements Animator.AnimatorListener,
                     // index, we call bringToFront for the card moving to back
                     if (bringCardToBackViewToFront && bringCardToFrontViewToFront &&
                             mCardToBack.zIndex < mCardToFront.zIndex) {
+                        Log.d(Consts.TAG, " ==============> 3");
                         mCardToBack.view.bringToFront();
                         mCardView.updateViewLayout(mCardToBack.view, mCardToBack.view.getLayoutParams());
                     }
                 } else {
+                    Log.d(Consts.TAG, " ==============>  i == mPositionToFront");
                     //if current card is the card moving to front, and behind the card before
                     if (cardToFrontBehindCardPre) {
+                        Log.d(Consts.TAG, " ==============> 4");
                         mCardToFront.view.bringToFront();
                         mCardView.updateViewLayout(mCardToFront.view, mCardToFront.view.getLayoutParams());
                         cardToFrontBrought = true;
                         //if the card moving to back Z index is smaller than the card moving to
                         // front, call bringToFront for it
                         if (cardToBackBehindCardPre && mCardToBack.zIndex < mCardToFront.zIndex) {
+                            Log.d(Consts.TAG, " ==============> 5");
                             mCardToBack.view.bringToFront();
                             mCardView.updateViewLayout(mCardToBack.view, mCardToBack.view.getLayoutParams());
                         }
@@ -299,6 +336,7 @@ class CardAnimationHelper implements Animator.AnimatorListener,
             // it the card moving to front has not call bringToFront yet, which means it is
             // already in the first position, call bringToFront for it
             if (!cardToFrontBrought) {
+                Log.d(Consts.TAG, " ==============> 6");
                 mCardToFront.view.bringToFront();
                 mCardView.updateViewLayout(mCardToFront.view, mCardToFront.view.getLayoutParams());
             }
@@ -365,6 +403,7 @@ class CardAnimationHelper implements Animator.AnimatorListener,
      * @param adapter adapter
      */
     void initAdapterView(BaseAdapter adapter, boolean reset) {
+        Log.d(Consts.TAG, " ===> initAdapterView");
         if (mCardWidth > 0 && mCardHeight > 0) {
             if (mCards == null) {
                 mCardView.removeAllViews();
@@ -383,6 +422,7 @@ class CardAnimationHelper implements Animator.AnimatorListener,
      * @param adapter adapter
      */
     private void resetAdapter(BaseAdapter adapter) {
+        Log.d(Consts.TAG, " ===> resetAdapter");
         if (mTransformerAnimRemove == null) {
             mCardView.removeAllViews();
             firstSetAdapter(adapter);
@@ -456,13 +496,14 @@ class CardAnimationHelper implements Animator.AnimatorListener,
      * @param adapter adapter
      */
     private void firstSetAdapter(BaseAdapter adapter) {
+        Log.d(Consts.TAG, " ===> firstSetAdapter");
         if (mTransformerAnimAdd != null) {
             mIsAddRemoveAnim = true;
         }
         mCards = new LinkedList<>();
 //            mCards4JudgeZIndex = new ArrayList<>();
         mCardCount = adapter.getCount();
-        for (int i = mCardCount - 1; i >= 0; i--) {
+        for (int i = mCardCount - 1; i >= 0; i--) {//4-0
             View child = adapter.getView(i, null, mCardView);
             CardItem cardItem = new CardItem(child, 0, i);
             mCardView.addCardView(cardItem);
@@ -476,6 +517,7 @@ class CardAnimationHelper implements Animator.AnimatorListener,
     }
 
     private void showAnimAdd(final View view, int delay, final int position, final boolean isLast) {
+        Log.d(Consts.TAG, " ===> showAnimAdd    delay = " + delay + "   position = " + position + " isLast = " + isLast);
         if (mTransformerAnimAdd == null) {
             return;
         }
@@ -534,6 +576,7 @@ class CardAnimationHelper implements Animator.AnimatorListener,
      * @param adapter adapter
      */
     private void notifySetAdapter(BaseAdapter adapter) {
+        Log.d(Consts.TAG, " ===> notifySetAdapter");
         mCardCount = adapter.getCount();
         for (int i = 0; i < mCardCount; i++) {
             CardItem cardItem = mCards.get(i);
@@ -575,6 +618,7 @@ class CardAnimationHelper implements Animator.AnimatorListener,
 
     /**
      * bring the specific position card to front
+     * 主要是设置参数，便于后面执行动画，一个是点击pre或者next，一个是点击中间的item
      *
      * @param position position
      */
@@ -583,9 +627,18 @@ class CardAnimationHelper implements Animator.AnimatorListener,
             mPositionToFront = position;
             //if the animation type is not ANIM_TYPE_SWITCH, the card to back post is the last
             // position
-            mPositionToBack = mAnimType == InfiniteCardView.ANIM_TYPE_SWITCH ? mPositionToFront :
-                    (mCardCount - 1);
+            if (mAnimType == InfiniteCardView.ANIM_TYPE_SWITCH) {
+                //换位置
+                mPositionToBack = mPositionToFront;
+            } else {
+                //换到最后一个
+                mPositionToBack = (mCardCount - 1);
+            }
+//            mPositionToBack = mAnimType == InfiniteCardView.ANIM_TYPE_SWITCH ? mPositionToFront :
+//                    (mCardCount - 1);
+            //获取相应的卡片，往后的永远是第一个
             mCardToBack = mCards.getFirst();
+            //往前的就是你选择的那个，也就是传过来的参数position
             mCardToFront = mCards.get(mPositionToFront);
             if (mValueAnimator.isRunning()) {
                 mValueAnimator.end();

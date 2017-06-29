@@ -7,6 +7,7 @@ import android.support.annotation.AttrRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
@@ -19,13 +20,10 @@ import com.bakerj.infinitecards.lib.R;
  *         https://github.com/BakerJQ/InfiniteCards
  */
 public class InfiniteCardView extends ViewGroup {
-    /*
-     * Three types of animation,三种动画类型
-     * ANIM_TYPE_FRONT:custom animation for chosen card, common animation for other cards 选中的带到前面
-     * ANIM_TYPE_SWITCH:switch the position by custom animation of the first card and the chosen card 交换选中的card和first card
-     * ANIM_TYPE_FRONT_TO_LAST:moving the first card to last position by custom animation, common animation for others,第一张到最后
-     */
-    public static final int ANIM_TYPE_FRONT = 0, ANIM_TYPE_SWITCH = 1, ANIM_TYPE_FRONT_TO_LAST = 2;
+    //Three types of animation,三种动画类型
+    public static final int ANIM_TYPE_FRONT = 0;//被选中的卡片通过自定义动效移至第一，其他的卡片通过通用动效补位
+    public static final int ANIM_TYPE_SWITCH = 1;//选中的卡片和第一张卡片互换位置，并都是自定义动效
+    public static final int ANIM_TYPE_FRONT_TO_LAST = 2;//第一张图片通过自定义动效移至最后，其他卡片通过通用动效补位
     //cardHeight / cardWidth = CARD_SIZE_RATIO
     private static final float CARD_SIZE_RATIO = 0.5f;
     //cardHeight / cardWidth = mCardRatio
@@ -46,16 +44,18 @@ public class InfiniteCardView extends ViewGroup {
 
     public InfiniteCardView(@NonNull Context context, @Nullable AttributeSet attrs, @AttrRes int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        Log.d(Consts.TAG, " ===> InfiniteCardView creat");
         init(context, attrs);
         setClickable(true);
     }
 
     private void init(Context context, AttributeSet attrs) {
+        Log.d(Consts.TAG, " ===> init");
 
 //        animType : 动效展示类型
-    //        front : 将点击的卡片切换到第一个
-    //        switchPosition : 将点击的卡片和第一张卡片互换位置
-    //        frontToLast : 将第一张卡片移到最后，后面的卡片往前移动一个
+        //        front : 将点击的卡片切换到第一个
+        //        switchPosition : 将点击的卡片和第一张卡片互换位置
+        //        frontToLast : 将第一张卡片移到最后，后面的卡片往前移动一个
 //        cardRatio : 卡片宽高比
 //        animDuration : 卡片动效时间
 //        animAddRemoveDelay : 卡片组切换时，添加与移出时，相邻卡片展示动效的间隔时间
@@ -86,6 +86,7 @@ public class InfiniteCardView extends ViewGroup {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        Log.d(Consts.TAG, " ===> onMeasure");
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         int sizeWidth = MeasureSpec.getSize(widthMeasureSpec);
@@ -110,6 +111,7 @@ public class InfiniteCardView extends ViewGroup {
     }
 
     private void setCardSize(boolean resetAdapter) {
+        Log.d(Consts.TAG, " ===> setCardSize");
         mCardWidth = getMeasuredWidth();
         mCardHeight = (int) (mCardWidth * mCardRatio);
         mAnimationHelper.setCardSize(mCardWidth, mCardHeight);
@@ -118,6 +120,7 @@ public class InfiniteCardView extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        Log.d(Consts.TAG, " ===> onLayout");
         int childCount = getChildCount();
         int childWidth, childHeight;
         int childLeft, childTop, childRight, childBottom;
@@ -179,6 +182,7 @@ public class InfiniteCardView extends ViewGroup {
      * @param adapter adapter
      */
     public void setAdapter(BaseAdapter adapter) {
+        Log.d(Consts.TAG, " ===> setAdapter");
         this.mAdapter = adapter;
         //注册adapter的观察者，内容发生变化时，执行onChanged方法
         mAdapter.registerDataSetObserver(new DataSetObserver() {
@@ -224,6 +228,7 @@ public class InfiniteCardView extends ViewGroup {
     }
 
     public void setAnimType(int animType) {
+        Log.d(Consts.TAG, " ===> setAnimType    animType = " + animType);
         mAnimationHelper.setAnimType(animType);
     }
 
